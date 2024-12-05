@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  id            String    @id @default(cuid())
+  name          String
+  maxPlayers    Int
+  status        RoomStatus @default(WAITING)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  players       Player[]
+}
+
+model Player {
+  id            String    @id @default(cuid())
+  name          String
+  isReady       Boolean   @default(false)
+  role          PlayerRole?
+  gameCode      String?   @unique
+  roomId        String
+  room          Room      @relation(fields: [roomId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum RoomStatus {
+  WAITING
+  STARTING
+  IN_PROGRESS
+  FINISHED
+}
+
+enum PlayerRole {
+  HUMAN
+  MONSTER
+}
