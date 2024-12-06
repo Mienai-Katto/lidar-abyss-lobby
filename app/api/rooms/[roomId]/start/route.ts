@@ -21,26 +21,23 @@ export async function POST(
     if (!room.players.every((player) => player.isReady)) {
       return NextResponse.json(
         { error: "Not all players are ready" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
-    // Randomly assign roles to players
-    const players = [...room.players];
-    const numMonsters = 1; // 1 monster per game
-    const shuffled = players.sort(() => 0.5 - Math.random());
+    const monsterIndex = Math.floor(Math.random() * room.players.length);
 
     const updatedPlayers = await Promise.all(
-      shuffled.map(async (player, index) => {
+      room.players.map(async (player, index) => {
         const gameCode = crypto.randomBytes(6).toString("hex");
         return prisma.player.update({
           where: { id: player.id },
           data: {
-            role: index < numMonsters ? "MONSTER" : "HUMAN",
+            role: index === monsterIndex ? "MONSTER" : "HUMAN",
             gameCode,
           },
         });
-      }),
+      })
     );
 
     await prisma.room.update({
@@ -50,9 +47,10 @@ export async function POST(
 
     return NextResponse.json({ players: updatedPlayers });
   } catch (error) {
+    console.error("Error starting game:", error);
     return NextResponse.json(
       { error: `Failed to start game [${(error as Error).message}]` },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

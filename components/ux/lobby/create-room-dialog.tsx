@@ -19,7 +19,7 @@ export function CreateRoomDialog({ open, onOpenChange, onRoomCreated }: CreateRo
   const [maxPlayers, setMaxPlayers] = useState('4');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { rooms, setRooms } = useRooms();
+  const { rooms, setRooms, invalidateRooms  } = useRooms();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +35,8 @@ export function CreateRoomDialog({ open, onOpenChange, onRoomCreated }: CreateRo
 
     // Optimistic update
     setRooms([...rooms, newRoom]);
+
+    invalidateRooms();
 
     try {
       const response = await fetch('/api/rooms', {

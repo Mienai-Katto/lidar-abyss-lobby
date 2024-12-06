@@ -42,7 +42,12 @@ export function useOptimisticRoom(roomId: string) {
 
   const isHost = (playerId: string): boolean => {
     if (!room || !room.players.length) return false;
-    return room.players[0].id === playerId;
+
+    const oldestPlayer = room.players.reduce((oldest, player) =>
+      new Date(player.createdAt) < new Date(oldest.createdAt) ? player : oldest
+    );
+
+    return oldestPlayer.id === playerId;
   };
 
   return { room, isLoading, error, optimisticUpdatePlayer, isHost };

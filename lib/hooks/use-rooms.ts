@@ -2,11 +2,27 @@
 
 import { useState, useEffect } from 'react';
 import type { Room } from '@/types/lobby';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export function useRooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  
+  const fetchRooms = async () => {
+    
+    try {
+      const response = await fetch('/api/rooms');
+      const data = await response.json();
+      setRooms(data);
+    } catch (error) {
+      console.error('Failed to fetch rooms:', error);
+    } finally {
+      
+    }
+  };
+
+
   const {data, error: queryError, isPending: isLoading } = useQuery({
     queryKey: ['rooms'],
     queryFn: async () => {
@@ -14,6 +30,11 @@ export function useRooms() {
       return await response.json();
     },
   });
+
+  
+  useEffect(() => {
+    fetchRooms();
+  }, []);
 
   useEffect(() => {
     if (data) {
@@ -47,5 +68,11 @@ export function useRooms() {
   //   return () => clearInterval(interval);
   // }, []);
 
-  return { rooms, setRooms, isLoading, error };
+  const invalidateRooms = () => {
+    queryClient.invalidateQueries({
+      queryKey: ['rooms'],
+    });
+  };
+
+  return { rooms, setRooms, isLoading, error, invalidateRooms };
 }

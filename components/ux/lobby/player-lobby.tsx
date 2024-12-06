@@ -14,7 +14,6 @@ interface PlayerLobbyProps {
 
 export function PlayerLobby({ roomId, playerId }: PlayerLobbyProps) {
   const { room, error, optimisticUpdatePlayer, isHost } = useOptimisticRoom(roomId);
-  const [gameCode, setGameCode] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleReady = async () => {
@@ -41,11 +40,16 @@ export function PlayerLobby({ roomId, playerId }: PlayerLobbyProps) {
       const response = await fetch(`/api/rooms/${roomId}/start`, {
         method: 'POST',
       });
-      const data = await response.json();
-      const player = data.players.find((p: any) => p.id === playerId);
-      if (player) {
-        setGameCode(player.gameCode);
+
+      if (!response.ok) {
+        throw new Error('Failed to start game');
       }
+
+      toast({
+        title: 'Game Started',
+        description: 'The game has successfully started!',
+        variant: 'default',
+      });
     } catch (error) {
       toast({
         title: 'Error',
@@ -71,11 +75,11 @@ export function PlayerLobby({ roomId, playerId }: PlayerLobbyProps) {
 
   return (
     <div className="space-y-4">
-      {gameCode ? (
+      {room.status === 'IN_PROGRESS' && currentPlayer?.gameCode ? (
         <div className="text-center space-y-4">
           <div className="text-2xl font-bold">Your Game Code</div>
           <div className="text-3xl font-mono bg-gray-700 p-4 rounded-lg">
-            {gameCode}
+            {currentPlayer.gameCode}
           </div>
           <div className="flex justify-center items-center space-x-2">
             {currentPlayer?.role === 'HUMAN' ? (
@@ -127,7 +131,7 @@ export function PlayerLobby({ roomId, playerId }: PlayerLobbyProps) {
             </Button>
           ) : (
             <div className="text-center text-gray-400">
-              {isHost(playerId) 
+              {isHost(playerId)
                 ? 'Waiting for all players to be ready...'
                 : 'Waiting for the host to start the game...'}
             </div>
