@@ -24,9 +24,9 @@ export function LobbyManager() {
       <div className="flex justify-end">
         <Button
           onClick={() => setIsCreateDialogOpen(true)}
-          className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+          className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-foreground font-medium"
         >
-          <PlusCircle className="mr-2 h-4 w-4" />
+          <PlusCircle className="size-4" />
           Create Room
         </Button>
       </div>

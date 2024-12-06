@@ -95,7 +95,7 @@ export function CreateRoomDialog({ open, onOpenChange, onRoomCreated }: CreateRo
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+            className="w-full text-foreground bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
           >
             {isLoading ? 'Creating...' : 'Create Room'}
           </Button>
