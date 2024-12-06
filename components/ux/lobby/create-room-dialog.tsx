@@ -19,26 +19,23 @@ export function CreateRoomDialog({ open, onOpenChange, onRoomCreated }: CreateRo
   const [maxPlayers, setMaxPlayers] = useState('4');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { rooms, setRooms, invalidateRooms  } = useRooms();
+  const { invalidateRooms } = useRooms();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const newRoom = {
-      id: crypto.randomUUID(),
-      name,
-      maxPlayers: parseInt(maxPlayers, 10),
-      status: 'WAITING',
-      players: [],
-    };
-
-    // Optimistic update
-    setRooms([...rooms, newRoom]);
-
-    invalidateRooms();
-
     try {
+      // Optimistic update (no necessidade de setRooms)
+      const newRoom = {
+        id: crypto.randomUUID(),
+        name,
+        maxPlayers: parseInt(maxPlayers, 10),
+        status: 'WAITING',
+        players: [],
+      };
+
+      // Chamando a API para criar a sala
       const response = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -46,11 +43,12 @@ export function CreateRoomDialog({ open, onOpenChange, onRoomCreated }: CreateRo
       });
 
       if (!response.ok) throw new Error('Failed to create room');
-      
+
+      // Revalida as salas após a criação
+      invalidateRooms();
+
       onRoomCreated();
     } catch (error) {
-      // Revert optimistic update
-      setRooms(rooms);
       toast({
         title: 'Error',
         description: 'Failed to create room. Please try again.',
@@ -89,7 +87,7 @@ export function CreateRoomDialog({ open, onOpenChange, onRoomCreated }: CreateRo
               value={maxPlayers}
               onChange={(e) => setMaxPlayers(e.target.value)}
               min="2"
-              max="10"
+              max="4"
               required
               className="bg-gray-700 border-gray-600"
             />

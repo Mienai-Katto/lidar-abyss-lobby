@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Room } from '@/types/lobby';
 import { PlayerLobby } from './player-lobby';
+import { useRooms } from '@/lib/hooks/use-rooms';
 
 interface JoinRoomDialogProps {
   room: Room;
@@ -20,6 +21,7 @@ export function JoinRoomDialog({ room, open, onOpenChange }: JoinRoomDialogProps
   const [isLoading, setIsLoading] = useState(false);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { invalidateRooms } = useRooms();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +38,7 @@ export function JoinRoomDialog({ room, open, onOpenChange }: JoinRoomDialogProps
       
       const player = await response.json();
       setPlayerId(player.id);
+      invalidateRooms();
     } catch (error) {
       toast({
         title: 'Error',
